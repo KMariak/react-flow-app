@@ -1,4 +1,3 @@
-// src/App.jsx
 import { useCallback } from "react";
 import {
   ReactFlow,
@@ -12,7 +11,7 @@ import {
 import "@xyflow/react/dist/style.css";
 
 const initialNodes = [
-  { id: "a", position: { x: 0, y: 0 }, data: { label: "Hello" }, type: "default" },
+  { id: "a", position: { x: 0, y: 0 }, data: { label: "Hello" } },
   { id: "b", position: { x: 200, y: 100 }, data: { label: "React Flow" } },
 ];
 
@@ -22,9 +21,10 @@ export default function App() {
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
 
-  const onConnect = useCallback((conn) => {
-    setEdges((eds) => addEdge({ ...conn, animated: true }, eds));
-  }, [setEdges]);
+  const onConnect = useCallback(
+    (conn) => setEdges((eds) => addEdge({ ...conn, animated: true }, eds)),
+    [setEdges]
+  );
 
   return (
     <div style={{ width: "100vw", height: "100vh" }}>
