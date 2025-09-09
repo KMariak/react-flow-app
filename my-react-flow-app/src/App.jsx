@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useMemo, useState, useEffect } from "react";
 import {
   ReactFlow,
   Background,
@@ -12,20 +12,11 @@ import "@xyflow/react/dist/style.css";
 import Toolbar from "./Toolbar.jsx";
 import FlowPillNode from "./FlowPillNode.jsx";
 import FlowManagerModal from "./FlowManagerModal.jsx";
+import { listFlows, saveNewFlow, getFlow, deleteFlow } from "./storage";
 
 const initialNodes = [
-  {
-    id: "start",
-    type: "pill",
-    position: { x: 200, y: 50 },
-    data: { type: "start", label: "Start" },
-  },
-  {
-    id: "end",
-    type: "pill",
-    position: { x: 200, y: 400 },
-    data: { type: "end", label: "End" },
-  },
+  { id: "start", type: "pill", position: { x: 200, y: 50 },  data: { type: "start", label: "Start" } },
+  { id: "end",   type: "pill", position: { x: 200, y: 400 }, data: { type: "end",   label: "End"   } },
 ];
 const initialEdges = [];
 
@@ -41,7 +32,13 @@ export default function App() {
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
 
-  const [showManager, setShowManager] = useState(false); //
+  const [showManager, setShowManager] = useState(false);
+  const [flows, setFlows] = useState([]);
+
+  const refreshFlows = () => setFlows(listFlows());
+
+  useEffect(() => { if (showManager) refreshFlows(); }, [showManager]);
+
   const onConnect = useCallback(
     (conn) => setEdges((eds) => addEdge({ ...conn, animated: true }, eds)),
     []
@@ -68,6 +65,29 @@ export default function App() {
     setNodes((nds) => [...nds, newNode]);
   };
 
+  // Save current graph → localStorage
+  const handleSave = (name, description) => {
+    saveNewFlow({ name, description, nodes, edges });
+    refreshFlows();
+    setShowManager(false);
+    alert("Saved to localStorage ✅");
+  };
+
+  // Load by id → setNodes/Edges
+  const handleLoad = (id) => {
+    const flow = getFlow(id);
+    if (!flow) return alert("Flow not found");
+    setNodes(flow.nodes || []);
+    setEdges(flow.edges || []);
+    setShowManager(false);
+  };
+
+  const handleDelete = (id) => {
+    if (!confirm("Delete this flow?")) return;
+    deleteFlow(id);
+    refreshFlows();
+  };
+
   return (
     <div style={{ width: "100vw", height: "100vh" }}>
       <Toolbar
@@ -89,10 +109,13 @@ export default function App() {
         <Background />
       </ReactFlow>
 
-      {/* Modal */}
       <FlowManagerModal
         open={showManager}
         onClose={() => setShowManager(false)}
+        flows={flows}
+        onSave={handleSave}
+        onLoad={handleLoad}
+        onDelete={handleDelete}
       />
     </div>
   );
