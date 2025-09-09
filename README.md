@@ -37,6 +37,8 @@ docker run -d --name mongo -p 27017:27017 mongo:7
 cd backend
 uvicorn app.main:app --reload --port 8000
 ```
+Docs available at: http://localhost:8000/docs
+
 
 ### 3. Frontend (Vite)
 ```bash
@@ -44,3 +46,4 @@ cd my-react-flow-app
 npm install
 npm run dev
 ```
+Open: http://localhost:5173
