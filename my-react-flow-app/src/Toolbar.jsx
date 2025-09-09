@@ -22,7 +22,7 @@ function PillButton({ color, label, icon, onClick }) {
   );
 }
 
-export default function Toolbar({ onAddNode }) {
+export default function Toolbar({ onAddNode, onOpenManager }) {
   return (
     <div
       style={{
@@ -106,28 +106,47 @@ export default function Toolbar({ onAddNode }) {
           </svg>
         }
       />
+
+      {/* Conditional split */}
       <PillButton
         color="#06B6D4"
         label="Conditional split"
         onClick={() => onAddNode("split")}
         icon={
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-  <path
-    d="M17 8l4 4-4 4"
-    stroke="#06B6D4"
-    strokeWidth="2"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-  />
-  <path
-    d="M13 12h8"
-    stroke="#06B6D4"
-    strokeWidth="2"
-    strokeLinecap="round"
-  />
-</svg>
+            <path
+              d="M17 8l4 4-4 4"
+              stroke="#06B6D4"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+            <path
+              d="M13 12h8"
+              stroke="#06B6D4"
+              strokeWidth="2"
+              strokeLinecap="round"
+            />
+          </svg>
         }
       />
+
+      {/* --- Flow Manager --- */}
+      <button
+        onClick={onOpenManager}
+        style={{
+          marginTop: 10,
+          padding: "10px 14px",
+          borderRadius: 12,
+          border: "1px solid #E5E7EB",
+          background: "#16a34a",
+          color: "white",
+          fontSize: 14,
+          cursor: "pointer",
+        }}
+      >
+        Flow Manager
+      </button>
     </div>
   );
 }
