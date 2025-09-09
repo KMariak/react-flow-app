@@ -35,10 +35,10 @@ export default function Toolbar({ onAddNode }) {
         gap: 10,
       }}
     >
-      {/* Channel */}
+      {/* Message */}
       <PillButton
         color="#F59E0B"
-        label="Channel"
+        label="Message"
         onClick={() => onAddNode("message")}
         icon={
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
