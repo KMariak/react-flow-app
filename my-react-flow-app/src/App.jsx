@@ -1,4 +1,4 @@
-import { useCallback, useMemo } from "react";
+import { useCallback, useMemo, useState } from "react";
 import {
   ReactFlow,
   Background,
@@ -11,25 +11,20 @@ import {
 import "@xyflow/react/dist/style.css";
 import Toolbar from "./Toolbar.jsx";
 import FlowPillNode from "./FlowPillNode.jsx";
+import FlowManagerModal from "./FlowManagerModal.jsx";
 
 const initialNodes = [
   {
     id: "start",
     type: "pill",
     position: { x: 200, y: 50 },
-    data: {
-      type: "start",
-      label: "Start",
-    },
+    data: { type: "start", label: "Start" },
   },
   {
     id: "end",
     type: "pill",
     position: { x: 200, y: 400 },
-    data: {
-      type: "end",
-      label: "End",
-    },
+    data: { type: "end", label: "End" },
   },
 ];
 const initialEdges = [];
@@ -46,11 +41,11 @@ export default function App() {
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
 
+  const [showManager, setShowManager] = useState(false); //
   const onConnect = useCallback(
     (conn) => setEdges((eds) => addEdge({ ...conn, animated: true }, eds)),
     []
   );
-
 
   const onAddNode = (kind, customLabel) => {
     const id = `node-${crypto.randomUUID?.() || nodes.length + 1}`;
@@ -75,7 +70,10 @@ export default function App() {
 
   return (
     <div style={{ width: "100vw", height: "100vh" }}>
-      <Toolbar onAddNode={onAddNode} />
+      <Toolbar
+        onAddNode={onAddNode}
+        onOpenManager={() => setShowManager(true)}
+      />
 
       <ReactFlow
         nodeTypes={nodeTypes}
@@ -90,6 +88,12 @@ export default function App() {
         <Controls />
         <Background />
       </ReactFlow>
+
+      {/* Modal */}
+      <FlowManagerModal
+        open={showManager}
+        onClose={() => setShowManager(false)}
+      />
     </div>
   );
 }
