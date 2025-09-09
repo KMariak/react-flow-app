@@ -12,7 +12,26 @@ import "@xyflow/react/dist/style.css";
 import Toolbar from "./Toolbar.jsx";
 import FlowPillNode from "./FlowPillNode.jsx";
 
-const initialNodes = [];
+const initialNodes = [
+  {
+    id: "start",
+    type: "pill",
+    position: { x: 200, y: 50 },
+    data: {
+      type: "start",
+      label: "Start",
+    },
+  },
+  {
+    id: "end",
+    type: "pill",
+    position: { x: 200, y: 400 },
+    data: {
+      type: "end",
+      label: "End",
+    },
+  },
+];
 const initialEdges = [];
 
 const LABELS = {

@@ -5,10 +5,31 @@ const COLORS = {
   delay:   "#7C3AED",
   check:   "#10B981",
   split:   "#06B6D4",
+  start:   "#111827",
+  end:     "#DC2626",
 };
 
 function Icon({ type }) {
   const color = COLORS[type] ?? "#111827";
+
+  if (type === "start") {
+    return (
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+        <path d="M16 4h2v16h-2z" fill="#111827" />
+        <path d="M16 12l-10-6v12z" fill="#111827" />
+      </svg>
+    );
+  }
+
+  if (type === "end") {
+    return (
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+        <circle cx="12" cy="12" r="9" stroke="#DC2626" strokeWidth="2" fill="none"/>
+        <path d="M9 9l6 6M15 9l-6 6" stroke="#DC2626" strokeWidth="2" strokeLinecap="round"/>
+      </svg>
+    );
+  }
+
   if (type === "message") {
     return (
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
@@ -17,6 +38,7 @@ function Icon({ type }) {
       </svg>
     );
   }
+
   if (type === "delay") {
     return (
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
@@ -26,6 +48,7 @@ function Icon({ type }) {
       </svg>
     );
   }
+
   if (type === "check") {
     return (
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
@@ -34,6 +57,7 @@ function Icon({ type }) {
       </svg>
     );
   }
+
   // split
   return (
     <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
@@ -72,10 +96,12 @@ export default function FlowPillNode({ data }) {
       </span>
       <span>{label}</span>
 
-      <Handle
-        type="target"
-        position={Position.Top}
-        style={{
+
+      {type === "start" && (
+        <Handle
+          type="source"
+          position={Position.Bottom}
+          style={{
           background: "#111827",
           width: 3,
           height: 3,
@@ -83,11 +109,14 @@ export default function FlowPillNode({ data }) {
           minHeight: 3,
           borderRadius: "50%",
         }}
-      />
-      <Handle
-        type="source"
-        position={Position.Bottom}
-        style={{
+        />
+      )}
+
+      {type === "end" && (
+        <Handle
+          type="target"
+          position={Position.Top}
+          style={{
           background: "#111827",
           width: 3,
           height: 3,
@@ -95,7 +124,37 @@ export default function FlowPillNode({ data }) {
           minHeight: 3,
           borderRadius: "50%",
         }}
-      />
+        />
+      )}
+
+      {type !== "start" && type !== "end" && (
+        <>
+          <Handle
+            type="target"
+            position={Position.Top}
+            style={{
+          background: "#111827",
+          width: 3,
+          height: 3,
+          minWidth: 3,
+          minHeight: 3,
+          borderRadius: "50%",
+        }}
+          />
+          <Handle
+            type="source"
+            position={Position.Bottom}
+            style={{
+          background: "#111827",
+          width: 3,
+          height: 3,
+          minWidth: 3,
+          minHeight: 3,
+          borderRadius: "50%",
+        }}
+          />
+        </>
+      )}
     </div>
   );
 }
