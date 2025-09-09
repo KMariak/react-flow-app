@@ -10,6 +10,7 @@ A visual workflow builder (sequence editor) with persistent storage in MongoDB.
 
 ## Project Structure
 
+```
 react-flow-app/
 ├── my-react-flow-app/        # frontend (React + Vite)
 │   ├── src/
@@ -25,7 +26,7 @@ react-flow-app/
 ├── app/
 │   └── main.py           # FastAPI CRUD for flows
 └── requirements.txt
-
+```
 
 ### 1. Start MongoDB (Docker)
 ```bash
