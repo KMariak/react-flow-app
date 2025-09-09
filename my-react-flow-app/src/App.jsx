@@ -9,13 +9,10 @@ import {
   addEdge,
 } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
+import Toolbar from "./Toolbar.jsx";   // ← імпортуємо панель
 
-const initialNodes = [
-  { id: "a", position: { x: 0, y: 0 }, data: { label: "Hello" } },
-  { id: "b", position: { x: 200, y: 100 }, data: { label: "React Flow" } },
-];
-
-const initialEdges = [{ id: "e-a-b", source: "a", target: "b" }];
+const initialNodes = []; // немає стартових вузлів
+const initialEdges = [];
 
 export default function App() {
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
@@ -26,8 +23,20 @@ export default function App() {
     [setEdges]
   );
 
+  const onAddNode = (type) => {
+    const id = `node-${nodes.length + 1}`;
+    const newNode = {
+      id,
+      position: { x: Math.random() * 400, y: Math.random() * 400 },
+      data: { label: `${type} node` },
+    };
+    setNodes((nds) => [...nds, newNode]);
+  };
+
   return (
     <div style={{ width: "100vw", height: "100vh" }}>
+      <Toolbar onAddNode={onAddNode} />   {/* ← додаємо панель */}
+
       <ReactFlow
         nodes={nodes}
         edges={edges}
