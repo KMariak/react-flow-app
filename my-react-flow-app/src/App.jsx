@@ -1,18 +1,20 @@
 import { useCallback, useMemo, useState, useEffect } from "react";
 import {
   ReactFlow,
+  ReactFlowProvider,
   Background,
   Controls,
   MiniMap,
   useNodesState,
   useEdgesState,
   addEdge,
+  useReactFlow,
 } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
 import Toolbar from "./Toolbar.jsx";
 import FlowPillNode from "./FlowPillNode.jsx";
 import FlowManagerModal from "./FlowManagerModal.jsx";
-import { listFlows, saveNewFlow, getFlow, deleteFlow } from "./storage";
+import { listFlows, createFlow, getFlow, updateFlow, deleteFlow } from "./api";
 
 const initialNodes = [
   { id: "start", type: "pill", position: { x: 200, y: 50 },  data: { type: "start", label: "Start" } },
@@ -27,17 +29,23 @@ const LABELS = {
   split: "Conditional split",
 };
 
-export default function App() {
+// Внутрішній компонент, який живе під ReactFlowProvider
+function Editor() {
   const nodeTypes = useMemo(() => ({ pill: FlowPillNode }), []);
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
 
+  const { getViewport, setViewport } = useReactFlow(); // ← тепер ОК
+
   const [showManager, setShowManager] = useState(false);
   const [flows, setFlows] = useState([]);
 
-  const refreshFlows = () => setFlows(listFlows());
-
-  useEffect(() => { if (showManager) refreshFlows(); }, [showManager]);
+  const refreshFlows = async () => setFlows(await listFlows());
+  useEffect(() => {
+    if (showManager) {
+      refreshFlows().catch(console.error);
+    }
+  }, [showManager]);
 
   const onConnect = useCallback(
     (conn) => setEdges((eds) => addEdge({ ...conn, animated: true }, eds)),
@@ -65,35 +73,34 @@ export default function App() {
     setNodes((nds) => [...nds, newNode]);
   };
 
-  // Save current graph → localStorage
-  const handleSave = (name, description) => {
-    saveNewFlow({ name, description, nodes, edges });
-    refreshFlows();
+  // CREATE (Save new)
+  const handleSave = async (name, description) => {
+    const viewport = getViewport?.();
+    await createFlow({ name, description, nodes, edges, viewport });
+    await refreshFlows();
     setShowManager(false);
-    alert("Saved to localStorage ✅");
+    alert("Saved to backend ✅");
   };
 
-  // Load by id → setNodes/Edges
-  const handleLoad = (id) => {
-    const flow = getFlow(id);
-    if (!flow) return alert("Flow not found");
+  // READ (Load selected)
+  const handleLoad = async (id) => {
+    const flow = await getFlow(id);
     setNodes(flow.nodes || []);
     setEdges(flow.edges || []);
+    if (flow.viewport) setViewport(flow.viewport);
     setShowManager(false);
   };
 
-  const handleDelete = (id) => {
+  // DELETE
+  const handleDelete = async (id) => {
     if (!confirm("Delete this flow?")) return;
-    deleteFlow(id);
-    refreshFlows();
+    await deleteFlow(id);
+    await refreshFlows();
   };
 
   return (
-    <div style={{ width: "100vw", height: "100vh" }}>
-      <Toolbar
-        onAddNode={onAddNode}
-        onOpenManager={() => setShowManager(true)}
-      />
+    <>
+      <Toolbar onAddNode={onAddNode} onOpenManager={() => setShowManager(true)} />
 
       <ReactFlow
         nodeTypes={nodeTypes}
@@ -117,6 +124,16 @@ export default function App() {
         onLoad={handleLoad}
         onDelete={handleDelete}
       />
+    </>
+  );
+}
+
+export default function App() {
+  return (
+    <div style={{ width: "100vw", height: "100vh" }}>
+      <ReactFlowProvider>
+        <Editor />
+      </ReactFlowProvider>
     </div>
   );
 }
