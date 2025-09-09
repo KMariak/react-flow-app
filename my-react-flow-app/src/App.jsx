@@ -16,7 +16,7 @@ const initialNodes = [];
 const initialEdges = [];
 
 const LABELS = {
-  message: "Channel",
+  message: "Message",
   delay: "Time delay",
   check: "Check",
   split: "Conditional split",
@@ -32,13 +32,24 @@ export default function App() {
     []
   );
 
-  const onAddNode = (kind) => {
-    const id = `node-${nodes.length + 1}`;
+
+  const onAddNode = (kind, customLabel) => {
+    const id = `node-${crypto.randomUUID?.() || nodes.length + 1}`;
     const newNode = {
       id,
       type: "pill",
-      position: { x: Math.random() * 400, y: Math.random() * 400 },
-      data: { type: kind, label: LABELS[kind] || kind }, // ← колір/іконка беруться з type
+      position: { x: Math.random() * 420, y: Math.random() * 320 },
+      data: {
+        type: kind,
+        label: customLabel || LABELS[kind] || kind,
+        onRename: (newLabel) => {
+          setNodes((nds) =>
+            nds.map((n) =>
+              n.id === id ? { ...n, data: { ...n.data, label: newLabel } } : n
+            )
+          );
+        },
+      },
     };
     setNodes((nds) => [...nds, newNode]);
   };

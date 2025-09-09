@@ -44,9 +44,16 @@ function Icon({ type }) {
 }
 
 export default function FlowPillNode({ data }) {
-  const { type, label } = data; // type: 'message' | 'delay' | 'check' | 'split'
+  const { type, label, onRename } = data;
+
+  const handleDoubleClick = () => {
+    const newLabel = prompt("Введи нову назву:", label);
+    if (newLabel && onRename) onRename(newLabel);
+  };
+
   return (
     <div
+      onDoubleClick={handleDoubleClick}
       style={{
         display: "inline-flex",
         alignItems: "center",
@@ -65,31 +72,30 @@ export default function FlowPillNode({ data }) {
       </span>
       <span>{label}</span>
 
-      {/* хендли для з’єднань: вхід зліва, вихід справа */}
       <Handle
-  type="target"
-  position={Position.Top}
-  style={{
-    background: "#111827",
-    width: 3,
-    height: 3,
-    minWidth: 3,
-    minHeight: 3,
-    borderRadius: "50%",
-  }}
-/>
-<Handle
-  type="source"
-  position={Position.Bottom}
-  style={{
-    background: "#111827",
-    width: 3,
-    height: 3,
-    minWidth: 3,
-    minHeight: 3,
-    borderRadius: "50%",
-  }}
-/>
+        type="target"
+        position={Position.Top}
+        style={{
+          background: "#111827",
+          width: 3,
+          height: 3,
+          minWidth: 3,
+          minHeight: 3,
+          borderRadius: "50%",
+        }}
+      />
+      <Handle
+        type="source"
+        position={Position.Bottom}
+        style={{
+          background: "#111827",
+          width: 3,
+          height: 3,
+          minWidth: 3,
+          minHeight: 3,
+          borderRadius: "50%",
+        }}
+      />
     </div>
   );
 }
