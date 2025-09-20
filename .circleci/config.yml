@@ -1,0 +1,90 @@
+version: 2.1
+
+
+executors:
+  py311:
+    docker:
+      - image: cimg/python:3.11
+    working_directory: ~/project
+  node20:
+    docker:
+      - image: cimg/node:20.11
+    working_directory: ~/project
+
+commands:
+  install_python_deps:
+    description: "Install Python deps with cache"
+    steps:
+      - restore_cache:
+          keys:
+            - v1-pip-{{ arch }}-{{ .Branch }}-{{ checksum "requirements.txt" }}
+            - v1-pip-{{ arch }}-
+      - run:
+          name: Install dependencies
+          command: |
+            python -m pip install --upgrade pip
+            pip install -r requirements.txt
+      - save_cache:
+          key: v1-pip-{{ arch }}-{{ .Branch }}-{{ checksum "requirements.txt" }}
+          paths:
+            - ~/.cache/pip
+
+  install_node_deps:
+    description: "Install Node deps with cache"
+    steps:
+      - restore_cache:
+          keys:
+            - v1-npm-{{ arch }}-{{ .Branch }}-{{ checksum "my-react-flow-app/package-lock.json" }}
+            - v1-npm-{{ arch }}-
+      - run:
+          name: Install dependencies
+          command: |
+            cd my-react-flow-app
+            npm ci
+      - save_cache:
+          key: v1-npm-{{ arch }}-{{ .Branch }}-{{ checksum "my-react-flow-app/package-lock.json" }}
+          paths:
+            - ~/.npm
+            - my-react-flow-app/node_modules
+
+jobs:
+  backend_lint_test:
+    executor: py311
+    steps:
+      - checkout
+      - install_python_deps
+      - run:
+          name: Lint (optional)
+          command: |
+            python -c "import sys; print('Skipping flake8 if not installed')" || true
+            (flake8 backend || true)
+      - run:
+          name: Run tests
+          command: |
+            pytest -q --maxfail=1 --disable-warnings --junitxml=test-results/pytest/results.xml
+          when: always
+      - store_test_results:
+          path: test-results/pytest
+      - store_artifacts:
+          path: test-results/pytest
+          destination: pytest
+
+  frontend_build:
+    executor: node20
+    steps:
+      - checkout
+      - install_node_deps
+      - run:
+          name: Build app
+          command: |
+            cd my-react-flow-app
+            npm run build
+      - store_artifacts:
+          path: my-react-flow-app/dist
+          destination: frontend-dist
+
+workflows:
+  build_and_test:
+    jobs:
+      - backend_lint_test
+      - frontend_build
